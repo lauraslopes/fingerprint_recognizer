@@ -1,0 +1,6 @@
+raw2ps L025a.raw 300 300 0.5 6.0 3.5 3.5 + > fp2325.ps
+raw2ps L025b.raw 300 300 4.5 6.0 3.5 3.5 + >>fp2325.ps
+raw2ps L023a.raw 300 300 0.5 2.0 3.5 3.5 + >>fp2325.ps
+raw2ps L023b.raw 300 300 4.5 2.0 3.5 3.5   >>fp2325.ps
+
+raw2ps L023b.raw 300 300 1.25 2.5 6.0 6.0   >tmp-fp.ps
