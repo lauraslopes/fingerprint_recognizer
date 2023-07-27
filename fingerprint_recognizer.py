@@ -64,7 +64,7 @@ def remove_spurious(minutiaes):
     while (i < len(new_minutiaes)):
         x, y = new_minutiaes[i]
 
-        for j in xrange(i+1, len(new_minutiaes)):
+        for j in range(i+1, len(new_minutiaes)):
             l, c = new_minutiaes[j]
             distance = math.sqrt(math.pow(x - l,2) + math.pow(y - c,2))
             if distance < 8: #não são minucias, remove
@@ -123,13 +123,13 @@ def orientation( img):
     alphax = np.subtract(sobelx*sobelx, sobely*sobely) #resulta em matriz 300x300
     alphay = np.multiply((2 * sobelx), sobely) #resulta em matriz 300x300
 
-    for i in xrange(0,300,w):
-        for j in xrange(0,300,w):
+    for i in range(0,300,w):
+        for j in range(0,300,w):
             alpha_x.append(alphax[i:i+w, j:j+w].sum() * w2d) #aplica kernel em toda a matriz alphax (divide por w²)
             alpha_y.append(alphay[i:i+w, j:j+w].sum() * w2d) #aplica kernel em toda a matriz alphay (divide por w²)
 
-    alpha_x = np.reshape(alpha_x, (300/w+1, 300/w+1))
-    alpha_y = np.reshape(alpha_y, (300/w+1, 300/w+1))
+    alpha_x = np.reshape(alpha_x, (int(300/w+1), int(300/w+1)))
+    alpha_y = np.reshape(alpha_y, (int(300/w+1), int(300/w+1)))
     kernel = np.array(([1,1,1],[1,2,1],[1,1,1]))
     a = cv2.filter2D(alpha_x, -1, kernel)
     b = cv2.filter2D(alpha_y, -1, kernel)
@@ -138,8 +138,8 @@ def orientation( img):
 
     #o_cortado[abs(o_cortado) > (math.pi/2)] -= math.pi
     k=0
-    # for i in xrange(0,300,w):
-    #     for j in xrange(0,300,w):
+    # for i in range(0,300,w):
+    #     for j in range(0,300,w):
     #         y_final, x_final  = get_end_points((i,j), o_cortado[k], 6)
     #         k+=1
 
@@ -164,8 +164,8 @@ def region_of_interest( img):
 
     mean = []
     deviation = []
-    for k in xrange(0,300,w):
-        for j in xrange(0,300,w):
+    for k in range(0,300,w):
+        for j in range(0,300,w):
             submatrix = img[k:k+w,j:j+w]
             mean.append(np.mean(submatrix))
             deviation.append(np.std(submatrix))
@@ -176,8 +176,8 @@ def region_of_interest( img):
     max_deviation = max(deviation)
 
 
-    for k in xrange(0,300-w+1,w):
-        for j in xrange(0,300-w+1,w):
+    for k in range(0,300-w+1,w):
+        for j in range(0,300-w+1,w):
 
             submatrix = img[k:k+w,j:j+w]
             mean = np.mean(submatrix)
@@ -203,11 +203,11 @@ def image_binarization( img):
 
     flattened = img.flatten()
     index_in_order = np.argsort(flattened)
-    p25 = flattened[index_in_order[(len(flattened)/100)*25]]
-    p50 = flattened[index_in_order[(len(flattened)/100)*50]]
+    p25 = flattened[index_in_order[int((len(flattened)/100)*25)]]
+    p50 = flattened[index_in_order[int((len(flattened)/100)*50)]]
 
-    for k in xrange(0,300):
-        for j in xrange(0,300):
+    for k in range(0,300):
+        for j in range(0,300):
             s = img[k,j]
             if s < p25:
                 img[k,j] = 0
@@ -223,14 +223,14 @@ def image_binarization( img):
                     img[k,j] = 0
 
 
-    for k in xrange(0,300):
-        for j in xrange(0,300):
+    for k in range(0,300):
+        for j in range(0,300):
             nw = 0
             nb = 0
             #SMOOTHING USING FILTER 5
             block = img[k:k+5,j:j+5]
             block = block.flatten()
-            for i in xrange(0, len(block)):
+            for i in range(0, len(block)):
                 if block[i] == 255:
                     nw = nw + 1
                 else:
@@ -247,7 +247,7 @@ def image_binarization( img):
             #SMOOTHING USING FILTER 3
             anotherblock = img[k:k+3,j:j+3].flatten()
             anotherblock = anotherblock.flatten()
-            for i in xrange(0, len(anotherblock)):
+            for i in range(0, len(anotherblock)):
                 if anotherblock[i] == 255:
                     nw = nw + 1
                 else:
@@ -282,8 +282,8 @@ def thinning( img):
 
 def get_minutiae( img):
     minutiaes = []
-    for k in xrange(1,299): #desconsidera bordas
-        for j in xrange(1,299):
+    for k in range(1,299): #desconsidera bordas
+        for j in range(1,299):
             nb = 0
             submatrix = img[k-1:k+2,j-1:j+2]
             if submatrix[1,1] == 0: #detecta a minúcia no ponto central (j,k)
@@ -313,7 +313,7 @@ def difference(diff):
 def singular_point(o_cortado, img):
     image = img.copy()
     w = 11
-    o_cortado = np.reshape(o_cortado, (300/w+1, 300/w+1))
+    o_cortado = np.reshape(o_cortado, (int(300/w+1), int(300/w+1)))
     poincare_index = np.zeros(o_cortado.shape)
     for i in np.arange(0,o_cortado.shape[0]-1):
         for j in np.arange(0,o_cortado.shape[1]-1):
@@ -331,7 +331,7 @@ def singular_point(o_cortado, img):
     cores = (poincare_index < np.radians(-170)) & (poincare_index > np.radians(-190)) * 1
     point_core = np.argwhere(cores) #encontrar em cores, onde tem um valor diferente de 0, ou seja, onde tem core
     if (point_core.all()):
-        for i in xrange(len(point_core)): #marcar core
+        for i in range(len(point_core)): #marcar core
             point = point_core[i] #point tem 2 dimensões
             image[point[0]*w-4:point[0]*w+4, point[1]*w-4:point[1]*w+4] = 0
             # cv2.imshow("kk", image)
@@ -341,7 +341,7 @@ def singular_point(o_cortado, img):
     deltas = (poincare_index > np.radians(170)) & (poincare_index < np.radians(190)) * 1
     point_delta = np.argwhere(deltas) #encontrar em cores, onde tem um valor diferente de 0, ou seja, onde tem core
     if (point_delta.all()):
-        for i in xrange(len(point_delta)):
+        for i in range(len(point_delta)):
             point = point_delta[i] #point tem 2 dimensões
             image[point[0]*w-4:point[0]*w+4, point[1]*w-4:point[1]*w+4] = 0
             # cv2.imshow("kk", image)
@@ -370,7 +370,7 @@ def matching(label, imagem_original, imagens_teste):
     R = 10 #10 pixels
 
     imagem = imagem_original.copy()
-    print "Preparando imagem para o matching"
+    print( "Preparando imagem para o matching")
     enhance_image(imagem)
     o_cortado_imagem = orientation(imagem)
     region_of_interest(imagem)
@@ -392,24 +392,24 @@ def matching(label, imagem_original, imagens_teste):
     maior = 0
     for teste in imagens_teste:
         if (tipo_imagem == teste.type):
-            print ("Calculando matching de {} com {}: ").format(label, teste.label),
+            print("Calculando matching de {} com {}: ").format(label, teste.label),
 
             # calcular score das minucias
             s = (100/M)*sum_minutiaes(M, R, teste.minutiaes, minucias_imagem)
-            print s
+            print( s)
             if (s > maior):
                 maior = s
                 label_match = teste.label
 
     print ("O melhor match de {} é a imagem {}").format(label, label_match),
     if (label == label_match):
-        print ", e felizmente, são as mesmas imagens."
+        print( ", e felizmente, são as mesmas imagens.")
     else:
-        print ", porém, são imagens diferentes."
+        print( ", porém, são imagens diferentes.")
 
 def sum_minutiaes(M, max_raio, minucias_teste, minucias):
     soma = 0
-    for i in xrange(1, M):
+    for i in range(1, M):
         r = math.sqrt(math.pow(minucias_teste[i][0] - minucias[i][0],2) + math.pow(minucias_teste[i][1] - minucias[i][1],2))
         soma += (1-r)/max_raio #r é a distancia de duas minúcias
 
@@ -428,16 +428,16 @@ def translate(minutiaes, origem):
     return
 
 def rotate(minutiaes, origem, angle):
-    mat = cv2.getRotationMatrix2D((origem[0],origem[1]), angle, 1)
+    mat = cv2.getRotationMatrix2D((int(origem[0]),int(origem[1])), angle, 1)
     minutiaes_array = np.asarray(minutiaes)
     minutiaes = cv2.warpAffine(minutiaes_array, mat, (300,300), flags=cv2.INTER_NEAREST)
 
     return
 
-np.set_printoptions(threshold=np.nan)
-dataset_path = './Lindex101'
+np.set_printoptions(threshold=sys.maxsize)
+dataset_path = './data/Lindex101'
 lindex = Dataset()
-print "Lendo dataset Lindex101"
+print("Lendo dataset Lindex101")
 lindex.get_images_and_labels(dataset_path)
 lindex.paths.sort()
 i=0
@@ -445,17 +445,17 @@ i=0
 #Criar o vetor de vetores para as imagens usadas no matching
 for img_o in lindex.images:
     img = img_o.copy()
-    print ("Imagem "+str(i+1))
+    print("Imagem "+str(i+1))
     enhance_image(img)
-    print "Calculando orientação"
+    print("Calculando orientação")
     o_cortado = orientation(img)
     region_of_interest(img)
-    print "Encontrando pontos singulares"
+    print( "Encontrando pontos singulares")
     tipo, deltas, cores = singular_point(o_cortado, img)
-    print "Binarizando a imagem. Isso pode demorar alguns segundos."
+    print( "Binarizando a imagem. Isso pode demorar alguns segundos.")
     image_binarization(img) #DEMORADO
     lindex.skeleton.append(thinning(img))
-    print "Encontrando minúcias e removendo spurious"
+    print( "Encontrando minúcias e removendo spurious")
     minutiaes = get_minutiae(lindex.skeleton[i])
     minutiaes = remove_spurious(minutiaes) #vetor de posições
     #cv2.imwrite(str(i)+".png", img)
@@ -477,10 +477,10 @@ for img_o in lindex.images:
         big_biggest = np.amax(biggest, axis=0)
         biggest = []
         origem = big_biggest
-        print "Transladando minúcias"
+        print( "Transladando minúcias")
         translate(minutiaes, origem)
         angle = o_cortado[origem[0]*origem[1]]
-        print "Rotacionando minúcias"
+        print( "Rotacionando minúcias")
         rotate(minutiaes, origem, angle)
     imagem_teste = Teste(lindex.paths[i], tipo, len(deltas), deltas, len(cores), cores, minutiaes)
     print ("Tipo: "+imagem_teste.type)
