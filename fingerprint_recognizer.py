@@ -12,30 +12,10 @@ from PIL import Image
 from numpy import linalg as LA
 from skimage.morphology import skeletonize
 from skimage import data
-
-class Dataset:
-    def __init__(self):
-        self.paths = []
-        self.images = []
-        self.skeleton = []
-        self.testes = []
-
-    #funções comuns entre os datasets
-    def get_images_and_labels(self, dataset_path):
-        for image_path in os.listdir(dataset_path):
-            if image_path.endswith('.raw'):
-                path = os.path.join(dataset_path, image_path)
-                self.paths.append(path)
-
-                #image = np.empty((300,300), np.uint8)
-                path = open(path, 'rb')
-                #image.data[:] = open(path).read()
-                image = np.fromfile(path, dtype='uint8', count=300*300)
-                image = image.reshape((300, 300))
-                path.close()
-                self.images.append(image)
-                #cv2.imshow("Adding fingerprints to traning set...", image)
-                #cv2.waitKey(50)
+ 
+# adding Folder_2/subfolder to the system path
+sys.path.insert(0, '/home/hub/visao/fingerprint_recognizer/src')
+from dataset import Dataset
 
 class Teste:
     def __init__(self, label, type, num_deltas, deltas, num_cores, cores, minutiaes):
@@ -435,10 +415,8 @@ def rotate(minutiaes, origem, angle):
     return
 
 np.set_printoptions(threshold=sys.maxsize)
-dataset_path = './data/Lindex101'
-lindex = Dataset()
-print("Lendo dataset Lindex101")
-lindex.get_images_and_labels(dataset_path)
+lindex = Dataset(sys.argv[1])
+lindex.get_images_and_labels()
 lindex.paths.sort()
 i=0
 
